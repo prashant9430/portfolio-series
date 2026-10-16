@@ -366,12 +366,12 @@ h1{font-family:var(--cond);font-weight:600;text-transform:uppercase;letter-spaci
   .chip.c1{top:-16px;left:-4%}
   .chip.c2{top:64%;right:-5%}
   .chip.c3{bottom:1%;left:-6%}
-  .shot::after{inset:-12% -16%;background:radial-gradient(66% 62% at 50% 42%,transparent 50%,rgba(8,8,10,.7) 76%,#08080a 92%)}
+  .shot::after{inset:-12% -16%;background:radial-gradient(66% 62% at 50% 42%,transparent 50%,rgba(8,8,10,.7) 74%,#08080a 84%,rgba(8,8,10,.55) 93%,transparent 100%)}
 }
 
 /* v2.2: dissolve photo edges with an actual mask (no residual rectangle) */
 .shot img{-webkit-mask-image:radial-gradient(88% 84% at 50% 46%,#000 60%,transparent 90%),linear-gradient(to bottom,#000 76%,transparent 96%);-webkit-mask-composite:source-in;mask-image:radial-gradient(88% 84% at 50% 46%,#000 60%,transparent 90%),linear-gradient(to bottom,#000 76%,transparent 96%);mask-composite:intersect}
-.shot::after{inset:-14% -20%;background:radial-gradient(64% 60% at 50% 44%,transparent 50%,rgba(8,8,10,.72) 76%,#08080a 92%)}
+.shot::after{inset:-14% -20%;background:radial-gradient(64% 60% at 50% 44%,transparent 50%,rgba(8,8,10,.72) 74%,#08080a 84%,rgba(8,8,10,.55) 93%,transparent 100%)}
 @media(max-width:960px){
   .shot img{-webkit-mask-image:radial-gradient(92% 86% at 50% 44%,#000 58%,transparent 88%),linear-gradient(to bottom,#000 74%,transparent 95%);-webkit-mask-composite:source-in;mask-image:radial-gradient(92% 86% at 50% 44%,#000 58%,transparent 88%),linear-gradient(to bottom,#000 74%,transparent 95%);mask-composite:intersect}
 }
