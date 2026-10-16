@@ -356,3 +356,15 @@ h1{font-family:var(--cond);font-weight:600;text-transform:uppercase;letter-spaci
   .prow{grid-template-columns:auto 1fr}
   .pthumb{grid-column:1/-1;order:3;min-height:200px;margin-top:.4rem}
 }
+
+/* v2.1 fixes: edge blend + mobile chips off face */
+.shot::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(72% 66% at 50% 42%,transparent 58%,rgba(8,8,10,.55) 84%,#08080a 100%)}
+.chip{z-index:2}
+@media(max-width:960px){
+  .shot{overflow:visible}
+  .chip.c1{top:-16px;left:-4%}
+  .chip.c2{top:64%;right:-5%}
+  .chip.c3{bottom:1%;left:-6%}
+  .shot::after{background:radial-gradient(78% 70% at 50% 42%,transparent 62%,rgba(8,8,10,.5) 86%,#08080a 101%)}
+}
