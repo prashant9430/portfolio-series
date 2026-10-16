@@ -9,6 +9,8 @@ const reduce = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced
 const finePointer = typeof matchMedia !== 'undefined' && matchMedia('(pointer: fine)').matches
 
 const NAV = ['about', 'skills', 'projects', 'education', 'contact']
+const LIVE = projects.filter((p) => p.status.toLowerCase().includes('live')).length
+const pad = (n) => String(n).padStart(2, '0')
 
 function Split({ text }) {
   return (
@@ -89,9 +91,14 @@ function Nav() {
   )
 }
 
-function Head({ n, label, title, sub }) {
+function Ghost({ text }) {
+  return <span className="ghost" aria-hidden="true">{text}</span>
+}
+
+function Head({ n, label, title, sub, ghost }) {
   return (
     <div className="shead">
+      {ghost && <Ghost text={ghost} />}
       <span className="eyebrow rv"><i>{n}</i> / {label}</span>
       <h2 className="sh"><Split text={title} /></h2>
       {sub && <p className="sub rv">{sub}</p>}
@@ -99,17 +106,16 @@ function Head({ n, label, title, sub }) {
   )
 }
 
-function Marquee() {
-  const items = ['Web Developer', 'React', 'Firebase', 'UI Design', 'JavaScript', 'Telegram Bots', 'AI Apps', 'Responsive Design']
+function Marquee({ items, rev }) {
   const row = items.map((x, i) => <span key={i}>{x}<b>✦</b></span>)
   return (
-    <div className="marq" aria-hidden="true">
+    <div className={'marq' + (rev ? ' rev' : '')} aria-hidden="true">
       <div className="mtrack"><div className="mrow">{row}</div><div className="mrow">{row}</div></div>
     </div>
   )
 }
 
-function SkillCard({ title, list }) {
+function SkillCard({ title, list, n }) {
   const r = useRef()
   const mv = (e) => {
     const b = r.current.getBoundingClientRect()
@@ -118,25 +124,19 @@ function SkillCard({ title, list }) {
   }
   return (
     <div ref={r} className="scard rv" onPointerMove={mv}>
+      <span className="snum" aria-hidden="true">{n}</span>
       <h3>{title}</h3>
       <ul className="tags">{list.map((x) => <li key={x}>{x}</li>)}</ul>
     </div>
   )
 }
 
-function ProjectCard({ p, onPreview, featured }) {
-  const r = useRef()
-  const mv = (e) => {
-    if (reduce || !finePointer) return
-    const b = r.current.getBoundingClientRect(), x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height
-    gsap.to(r.current, { rotateY: (x - 0.5) * 5, rotateX: -(y - 0.5) * 5, duration: 0.4, transformPerspective: 1000 })
-  }
-  const leave = () => gsap.to(r.current, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power3.out' })
+function ProjectRow({ p, i, onPreview }) {
   const live = p.status.toLowerCase().includes('live')
   return (
-    <article ref={r} className={'pcard rv' + (featured ? ' feat' : '')} onPointerMove={mv} onPointerLeave={leave}>
-      <div className={'art a-' + p.key} aria-hidden="true"><span className="aglow" /><span className="aletter">{p.title[0]}</span></div>
-      <div className="pbody">
+    <article className="prow rv" data-hover>
+      <span className="pnum" aria-hidden="true">{pad(i + 1)}</span>
+      <div className="pmain">
         <span className={'st' + (live ? ' live' : '')}><i />{p.status}</span>
         <h3>{p.title}</h3>
         <p>{p.text}</p>
@@ -148,6 +148,11 @@ function ProjectCard({ p, onPreview, featured }) {
           </div>
         )}
       </div>
+      <a className={'pthumb a-' + p.key} href={p.live || p.link || GITHUB} target="_blank" rel="noopener noreferrer" aria-label={p.title + (p.live ? ' live demo' : ' on GitHub')}>
+        <span className="aglow" aria-hidden="true" />
+        <span className="ptitle" aria-hidden="true">{p.title}</span>
+        <span className="parrow" aria-hidden="true">↗</span>
+      </a>
     </article>
   )
 }
@@ -178,14 +183,16 @@ export default function App() {
     const tick = (t) => lenis.raf(t * 1000)
     gsap.ticker.add(tick); gsap.ticker.lagSmoothing(0)
     const ctx = gsap.context(() => {
-      gsap.from('.hero .wi', { yPercent: 115, rotate: 3, duration: 1.1, stagger: 0.08, ease: 'power4.out' })
-      gsap.from('.hero .fade', { opacity: 0, y: 26, duration: 0.9, stagger: 0.12, delay: 0.45 })
-      gsap.from('.portrait', { opacity: 0, scale: 0.9, y: 30, duration: 1.2, delay: 0.3, ease: 'power3.out' })
-      gsap.from('.marq', { opacity: 0, duration: 1, delay: 0.8 })
+      gsap.from('.hero .hli', { yPercent: 112, duration: 1.15, stagger: 0.1, ease: 'power4.out' })
+      gsap.from('.hero .fade', { opacity: 0, y: 26, duration: 0.9, stagger: 0.12, delay: 0.5 })
+      gsap.from('.shot', { opacity: 0, scale: 0.86, rotate: 9, y: 40, duration: 1.25, delay: 0.35, ease: 'power3.out' })
+      gsap.from('.stats', { opacity: 0, y: 24, duration: 0.9, delay: 0.85 })
+      gsap.from('.marq', { opacity: 0, duration: 1, delay: 1 })
       gsap.to(bar.current, { scaleX: 1, ease: 'none', scrollTrigger: { scrub: 0.3, start: 0, end: 'max' } })
       gsap.utils.toArray('.rv').forEach((el) => gsap.from(el, { opacity: 0, y: 44, duration: 0.85, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%' } }))
       gsap.utils.toArray('.sh .wi').forEach((el) => gsap.from(el, { yPercent: 115, duration: 0.95, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 92%' } }))
-      gsap.to('.portrait img', { yPercent: 7, ease: 'none', scrollTrigger: { trigger: '.portrait', scrub: true } })
+      gsap.utils.toArray('.ghost').forEach((el) => gsap.fromTo(el, { xPercent: -12 }, { xPercent: 12, ease: 'none', scrollTrigger: { trigger: el.parentElement, scrub: 1.2, start: 'top bottom', end: 'bottom top' } }))
+      gsap.to('.shot img', { yPercent: 8, ease: 'none', scrollTrigger: { trigger: '.hero', scrub: true } })
       if (tline.current) gsap.from(tline.current, { scaleY: 0, transformOrigin: 'top', ease: 'none', scrollTrigger: { trigger: '.tl', start: 'top 80%', end: 'bottom 60%', scrub: 0.4 } })
     }, root)
     return () => { gsap.ticker.remove(tick); lenis.destroy(); ctx.revert() }
@@ -203,8 +210,12 @@ export default function App() {
       <main id="main">
         <section className="hero" id="top"><div className="wrap hg">
           <div className="hcol">
-            <p className="hey fade"><i />Student & Web Developer — Portfolio 2026</p>
-            <h1><Split text={NAME} /></h1>
+            <p className="hey fade"><i />{TITLE} — Portfolio 2026</p>
+            <h1 aria-label={NAME}>
+              <span className="hl"><span className="hli">Prashant</span></span>
+              <span className="hl out"><span className="hli">Kumar</span></span>
+              <span className="hl gold"><span className="hli">Pandey</span></span>
+            </h1>
             <p className="lead fade">I build modern digital experiences by combining creative design, practical functionality, and a passion for technology.</p>
             <div className="btns fade">
               <Magnetic href="#projects" primary>View Projects</Magnetic>
@@ -212,38 +223,50 @@ export default function App() {
               <Magnetic href={GITHUB} target="_blank" rel="noopener noreferrer">GitHub ↗</Magnetic>
             </div>
           </div>
-          <div className="portrait" data-hover>
-            <span className="pring" aria-hidden="true" />
-            <span className="pframe" aria-hidden="true" />
-            <img src="/photo.jpg" alt={NAME} width="350" height="480" />
-            <span className="pchip">{TITLE}</span>
+          <div className="shot" data-hover>
+            <img src="/hero-suit.jpg" alt={NAME} width="720" height="1160" />
+            <span className="chip c1"><b>Class 12</b><span>Science Stream</span></span>
+            <span className="chip c2"><b>React · Firebase</b><span>Current Stack</span></span>
+            <span className="chip c3"><b><i />BrahmTatva</b><span>Live Project</span></span>
           </div>
         </div>
-        <a className="scroll-hint fade" href="#about" aria-label="Scroll to about section"><span>Scroll</span><i /></a>
+        <div className="wrap stats">
+          <div className="stat"><b>{pad(projects.length)}</b><span>Projects built</span></div>
+          <div className="stat"><b>{pad(LIVE)}</b><span>Live deployments</span></div>
+          <div className="stat"><b>{pad(skills.length)}</b><span>Skill areas</span></div>
+          <a className="scroll-hint" href="#about" aria-label="Scroll to about section"><span>Scroll</span><i /></a>
+        </div>
         </section>
 
-        <Marquee />
+        <Marquee items={['Web Developer', 'React', 'Firebase', 'UI Design', 'JavaScript', 'Telegram Bots', 'AI Apps', 'Responsive Design']} />
+        <Marquee rev items={['HTML5', 'CSS3', 'JavaScript', 'React', 'Firebase', 'Git & GitHub', 'Vercel', 'Netlify', 'Framer Motion']} />
 
         <section className="sec" id="about"><div className="wrap">
-          <Head n="01" label="About" title="A student who learns by building" />
-          <div className="two rv">
-            <p>I'm Prashant, from East Champaran, Bihar. I completed 12th in the Science stream in 2026 and I'm heading toward web development, software development and computer applications.</p>
-            <p>I learn by building real projects: web apps, Firebase chat apps, a Telegram AI bot and a spiritual knowledge site. I like turning an idea into something that works, and I keep improving my skills with every project.</p>
+          <Head n="01" label="About" title="A student who learns by building" ghost="ABOUT" />
+          <div className="agrid">
+            <div className="two rv">
+              <p>I'm Prashant, from East Champaran, Bihar. I completed 12th in the Science stream in 2026 and I'm heading toward web development, software development and computer applications.</p>
+              <p>I learn by building real projects: web apps, Firebase chat apps, a Telegram AI bot and a spiritual knowledge site. I like turning an idea into something that works, and I keep improving my skills with every project.</p>
+            </div>
+            <figure className="aimg rv" data-hover>
+              <img src="/mirror.jpg" alt={NAME + ' in a black suit at a mirror'} loading="lazy" />
+              <figcaption>The builder behind the work</figcaption>
+            </figure>
           </div>
         </div></section>
 
         <section className="sec" id="skills"><div className="wrap">
-          <Head n="02" label="Skills" title="Skills and tools" />
-          <div className="grid2">{skills.map(([t, l]) => <SkillCard key={t} title={t} list={l} />)}</div>
+          <Head n="02" label="Skills" title="Skills and tools" ghost="SKILLS" />
+          <div className="grid2">{skills.map(([t, l], i) => <SkillCard key={t} title={t} list={l} n={pad(i + 1)} />)}</div>
         </div></section>
 
         <section className="sec" id="projects"><div className="wrap">
-          <Head n="03" label="Projects" title="Featured projects" sub="Personal development projects, shown honestly with their current status." />
-          <div className="pgrid">{projects.map((p, i) => <ProjectCard key={p.key} p={p} onPreview={setPv} featured={i === 0} />)}</div>
+          <Head n="03" label="Projects" title="Featured projects" sub="Personal development projects, shown honestly with their current status." ghost="WORK" />
+          <div className="plist">{projects.map((p, i) => <ProjectRow key={p.key} p={p} i={i} onPreview={setPv} />)}</div>
         </div></section>
 
         <section className="sec" id="education"><div className="wrap">
-          <Head n="04" label="Education" title="Education" />
+          <Head n="04" label="Education" title="Education" ghost="STUDY" />
           <ol className="tl"><span className="tl-line" ref={tline} aria-hidden="true" />
             {education.map(([y, t, s]) => (
               <li className="rv" key={y}><b>{y}</b><div><h3>{t}</h3><p>{s}</p></div></li>
@@ -258,6 +281,7 @@ export default function App() {
         </div></section>
 
         <section className="sec contact" id="contact"><div className="wrap">
+          <Ghost text="CONNECT" />
           <span className="eyebrow rv"><i>05</i> / Contact</span>
           <h2 className="sh big"><Split text="Let's build something" /></h2>
           <p className="sub rv">Open to learning, collaboration and interesting projects.</p>

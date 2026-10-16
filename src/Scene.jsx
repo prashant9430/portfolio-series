@@ -10,16 +10,16 @@ function Knot() {
     t.rotation.x += d * 0.14
     t.rotation.y += d * 0.2
     const wide = typeof innerWidth !== 'undefined' && innerWidth >= 900
-    t.position.x += ((wide ? 3.1 : 0) + s.pointer.x * 0.35 - t.position.x) * 0.05
-    t.position.y += (s.pointer.y * 0.25 - p * 9 - t.position.y) * 0.06
+    t.position.x += ((wide ? 2.6 : 0) + s.pointer.x * 0.35 - t.position.x) * 0.05
+    t.position.y += (0.7 + s.pointer.y * 0.25 - p * 9 - t.position.y) * 0.06
     const o = Math.max(0, 1 - p * 6)
-    t.material.opacity = 0.32 * o
+    t.material.opacity = 0.2 * o
     t.visible = o > 0.02
   })
   return (
     <mesh ref={m} position={[2.4, 0, 0]}>
-      <torusKnotGeometry args={[1.05, 0.3, 200, 28]} />
-      <meshBasicMaterial wireframe color="#e6c17a" transparent opacity={0.32} />
+      <torusKnotGeometry args={[0.78, 0.22, 200, 28]} />
+      <meshBasicMaterial wireframe color="#e6c17a" transparent opacity={0.2} />
     </mesh>
   )
 }
